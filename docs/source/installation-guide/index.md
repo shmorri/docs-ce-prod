@@ -44,7 +44,30 @@ The following ports are open to the Internet by default.
 |       22              |       tcp             | ssh              |
 
 !!! Note
-    See the [operations guide](../operation/ports.md) for a list of internal ports used by Gluu Server components (e.g. oxAuth, oxTrust, etc.). 
+    See the [operations guide](../operation/ports.md) for a list of internal ports used by Gluu Server components (e.g. oxAuth, oxTrust, etc.).
+    
+As described in the table above the ports 80, 443, and 22 should be open by default. In the case where you want to make sure they are open or have changed those defaults check the ```ufw``` command in Ubuntu, other OS have similar commands.
+
+```
+ufw status verbose
+```
+
+The defaults for ```ufw``` is to ```deny incoming``` and ```allow outgoing``` , if you have changed it you can reset to defaults by executing the following :
+
+```
+ufw default deny incoming
+ufw default allow outgoing
+```
+
+you may wish to set the firewall to deny every connection and hence you must explicitly allow the following ports
+
+|       Port Number     |       Command         |   Notes          |
+|-----------------------|-----------------------|------------------|
+|       80              |  ```ufw allow 80```   | Forwards to 443  |
+|       443             |  ```ufw allow 443```  | apache2/httpd    |
+|       22              |  ```ufw allow 22```   | ssh              |
+
+If Gluu is being [clusterered](../installation-guide/cluster.md) more ports have to be configureed.
 
 ## File Descriptors (FD)
 
@@ -90,10 +113,10 @@ ulimit -n 262144
 ```
 
 !!!Note
-    CentOS by default will not accept more than the default maximum of 65535. You may get an error while performing the above command.
+    Centos by default will not accept more than the default maximum of 65535. You may get an error while performing the above command.
 
 
-If the above does not work, use the `ulimit` command to set the FD limit to the soft limit of the file `/etc/security/limits.conf`
+If that does not work, use the `ulimit` command to set the FD limit to the soft limit of the file `/etc/security/limits.conf`
 
 ```
 ulimit -n 65535
@@ -103,7 +126,24 @@ ulimit -n 65535
 
 ## Fully Qualified Domain Name (FQDN)
 
-Gluu must be deployed on a fully qualified domain name (FQDN), e.g. `https://my-gluu.server.com`. Localhost is **not** supported. 
+Gluu must be deployed on a fully qualified domain name (FQDN), e.g. `https://my-gluu.server.com`. Localhost is **not** supported.
+
+In the case where you do not have a FQDN set globally all your clients ```hosts``` file and the server ```hosts``` file must be configuered to point the IP to the chosen domain.
+
+Choose your editor of choice and open your hosts file, in this case we are assuming linux:
+
+```
+nano /etc/hosts
+```
+
+Add your IP to this file. If the IP was 192.168.1.1 and my FQDN of choice was testme.gluu.org my hosts file should have the following:
+
+```
+192.168.1.1 testme.gluu.org
+```
+
+!!! Note
+     Windows has its hosts here ```C:\Windows\System32\drivers\etc\hosts```. You must have Administrator privliges to open the file.
 
 ## Cloud-specific notes
 
